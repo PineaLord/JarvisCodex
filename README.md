@@ -37,4 +37,12 @@ Spui o idee. Sistemul o înregistrează durabil, găsește contextul relevant, �
 
 ## Status
 
-🟡 Blueprint / pre-implementation. Următorul pas, după revizuire, este schema de date + testul de restore, nu integrarea cu un LLM.
+🟢 Faza A (nucleu durabil) — în lucru. Există: scheme versionate pentru event/task/approval/memory candidate, un event ledger SQLite append-only, proiecții reconstruibile din evenimente (`storage/projections.py`), export Markdown/JSON, și un test de restore automat (`tests/recovery/test_restore.py`) care verifică numărul de evenimente, hash-ul jurnalului și memoriile cu provenance după o restaurare într-un mediu curat.
+
+Rulare teste (fără dependențe externe, doar stdlib):
+
+```bash
+python3 -m unittest discover -t . -s tests -v
+```
+
+Rămas din Faza A: backup criptat (azi copierea e necriptată, vezi `docs/05-recovery.md`) și policy engine + executor dry-run. Fără LLM integrat încă — intenționat, per `docs/06-roadmap.md`.

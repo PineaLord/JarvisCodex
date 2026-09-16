@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "jarviscodex/approval_decided.v1",
+  "title": "Payload for approval.decided events",
+  "type": "object",
+  "required": ["approval_id", "decision"],
+  "properties": {
+    "approval_id": {"type": "string"},
+    "decision": {"type": "string", "enum": ["approved", "rejected"]}
+  },
+  "additionalProperties": false
+}

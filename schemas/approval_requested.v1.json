@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "jarviscodex/approval_requested.v1",
+  "title": "Payload for approval.requested events",
+  "type": "object",
+  "required": ["approval_id", "level", "description"],
+  "properties": {
+    "approval_id": {"type": "string"},
+    "level": {"type": "string", "enum": ["L0", "L1", "L2", "L3", "L4", "L5"]},
+    "description": {"type": "string"}
+  },
+  "additionalProperties": false
+}

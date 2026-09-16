@@ -1,0 +1,9 @@
+[project]
+name = "jarviscodex"
+version = "0.1.0"
+description = "Personal cognitive operating layer: durable core (blueprint stage)."
+requires-python = ">=3.11"
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]

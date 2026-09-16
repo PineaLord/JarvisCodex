@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "jarviscodex/memory_candidate_proposed.v1",
+  "title": "Payload for memory.candidate_proposed events",
+  "type": "object",
+  "required": ["candidate_id", "statement", "confidence", "source_event_ids"],
+  "properties": {
+    "candidate_id": {"type": "string"},
+    "statement": {"type": "string"},
+    "confidence": {"type": "number"},
+    "source_event_ids": {"type": "array", "items": {"type": "string"}}
+  },
+  "additionalProperties": false
+}
