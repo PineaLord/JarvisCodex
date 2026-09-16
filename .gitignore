@@ -1,0 +1,17 @@
+# Secrets and local runtime state
+.env
+.env.*
+!.env.example
+secrets/
+runtime/
+data/live/
+backups/
+
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# OS/editor
+.DS_Store

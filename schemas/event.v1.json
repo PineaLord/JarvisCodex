@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "jarviscodex/event.v1",
+  "title": "JarvisCodex Event v1",
+  "type": "object",
+  "required": ["id", "schema_version", "occurred_at", "type", "source", "payload"],
+  "properties": {
+    "id": {"type": "string", "description": "Stable UUID or ULID"},
+    "schema_version": {"const": 1},
+    "occurred_at": {"type": "string", "format": "date-time"},
+    "type": {"type": "string", "pattern": "^[a-z]+(\\.[a-z_]+)+$"},
+    "source": {"type": "string"},
+    "parent_id": {"type": ["string", "null"]},
+    "correlation_id": {"type": ["string", "null"]},
+    "payload": {"type": "object"}
+  },
+  "additionalProperties": false
+}

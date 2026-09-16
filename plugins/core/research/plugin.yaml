@@ -1,0 +1,21 @@
+api_version: jarviscodex.plugin/v1
+id: research
+version: 0.1.0
+status: reference
+purpose: Produce a sourced research report from approved query inputs.
+entrypoint: adapters.research:run
+capabilities:
+  - web.read
+effects:
+  - level: L0
+inputs_schema: schemas/research-input.v1.json
+outputs_schema: schemas/research-report.v1.json
+data_handling:
+  untrusted_inputs: true
+  retention: session_only
+approval:
+  activation: required
+  execution: not_required
+rollback: No external mutations; revoke plugin activation.
+tests:
+  - tests/plugins/test_research_contract.py
