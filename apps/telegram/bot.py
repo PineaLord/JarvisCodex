@@ -67,8 +67,19 @@ def process_updates(conn, backend: ReasoningBackend, client, updates: list[dict]
             ))
             continue
 
-        reply = handle_message(conn, backend, session_id, text)
-        client.send_message(chat_id, reply)
+        try:
+            reply = handle_message(conn, backend, session_id, text)
+            client.send_message(chat_id, reply)
+        except Exception as e:
+            # A backend/network failure on one message must not take the
+            # whole polling loop down -- the user's message is already
+            # durably recorded by handle_message before the backend call,
+            # so nothing is lost; only the reply failed.
+            print(f"Failed to handle message in session {session_id}: {e}", file=sys.stderr)
+            try:
+                client.send_message(chat_id, "A apărut o eroare la procesarea mesajului. Încearcă din nou puțin mai târziu.")
+            except Exception:
+                pass  # best-effort notification; the loop must keep going either way
 
     return highest_update_id
 

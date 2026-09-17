@@ -105,6 +105,28 @@ class TestProcessUpdates(unittest.TestCase):
         client = FakeTelegramClient()
         self.assertEqual(process_updates(self.conn, self.backend, client, [], self.allowed), -1)
 
+    def test_backend_failure_on_one_message_does_not_crash_the_batch(self):
+        class BrokenBackend:
+            def respond(self, request):
+                raise RuntimeError("simulated backend outage")
+
+        client = FakeTelegramClient()
+        updates = [
+            make_update(1, user_id=42, chat_id=1, text="primul"),
+            make_update(2, user_id=42, chat_id=1, text="al doilea"),
+        ]
+
+        highest = process_updates(self.conn, BrokenBackend(), client, updates, self.allowed)
+
+        self.assertEqual(highest, 2)  # offset still advances past both
+        self.assertEqual(len(client.sent), 2)  # an apology reply for each, not a crash
+        for _chat_id, text in client.sent:
+            self.assertIn("eroare", text)
+
+        # The user's messages were still durably recorded before the backend call failed.
+        messages = SqliteEventStore(self.conn).list_by_type("session.message")
+        self.assertEqual(len(messages), 2)
+
 
 class TestRunForever(unittest.TestCase):
     def setUp(self):
