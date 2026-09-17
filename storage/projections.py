@@ -78,6 +78,62 @@ def _on_memory_candidate_proposed(conn: sqlite3.Connection, event: Event) -> Non
     )
 
 
+@_handles("memory.candidate_confirmed")
+def _on_memory_candidate_confirmed(conn: sqlite3.Connection, event: Event) -> None:
+    conn.execute(
+        "UPDATE memory_candidates SET status = 'confirmed' WHERE id = ?",
+        (event.payload["candidate_id"],),
+    )
+
+
+@_handles("signal.detected")
+def _on_signal_detected(conn: sqlite3.Connection, event: Event) -> None:
+    p = event.payload
+    conn.execute(
+        """
+        INSERT INTO signals (id, kind, subject, description, detected_from_event)
+        VALUES (?, ?, ?, ?, ?)
+        ON CONFLICT(id) DO NOTHING
+        """,
+        (p["signal_id"], p["kind"], p["subject"], p["description"], event.id),
+    )
+
+
+@_handles("initiative.proposed")
+def _on_initiative_proposed(conn: sqlite3.Connection, event: Event) -> None:
+    p = event.payload
+    conn.execute(
+        """
+        INSERT INTO initiatives (id, signal_id, level, description, status, proposed_from_event)
+        VALUES (?, ?, ?, ?, 'proposed', ?)
+        ON CONFLICT(id) DO NOTHING
+        """,
+        (p["initiative_id"], p["signal_id"], p["level"], p["description"], event.id),
+    )
+
+
+@_handles("initiative.decided")
+def _on_initiative_decided(conn: sqlite3.Connection, event: Event) -> None:
+    p = event.payload
+    conn.execute(
+        "UPDATE initiatives SET status = ? WHERE id = ?",
+        (p["decision"], p["initiative_id"]),
+    )
+
+
+@_handles("goal.created")
+def _on_goal_created(conn: sqlite3.Connection, event: Event) -> None:
+    p = event.payload
+    conn.execute(
+        """
+        INSERT INTO goals (id, initiative_id, description, status, created_from_event)
+        VALUES (?, ?, ?, 'active', ?)
+        ON CONFLICT(id) DO NOTHING
+        """,
+        (p["goal_id"], p["initiative_id"], p["description"], event.id),
+    )
+
+
 def apply_event(conn: sqlite3.Connection, event: Event) -> None:
     """Fold a single event into the projection tables, if a handler exists.
 

@@ -37,18 +37,28 @@ def _path_within(path: str, prefixes: tuple[str, ...]) -> bool:
 class RuleBasedPolicyEngine:
     """Evaluates ActionRequests against the static capability registry.
 
-    Per-capability daily quotas are tracked in-memory for now (they reset
-    when the process restarts). That's acceptable at the dry-run stage in
-    docs/06-roadmap.md Faza A.4; once a real executor exists, quota should
-    be derived from the ledger's own execution events instead of a
-    separate counter, so it stays recoverable like everything else.
+    Per-capability daily quota usage is seeded from today's
+    action.simulated events in the ledger, not a bare in-memory counter --
+    a budget that resets whenever the process restarts (e.g. each
+    heartbeat run, per docs/06-roadmap.md Faza C.3) isn't really a budget.
+    A fresh engine instance and a long-lived one agree on how much of
+    today's quota is left, because both read the same ledger.
     """
 
     def __init__(self, conn: sqlite3.Connection, daily_quota_by_capability: dict[str, int] | None = None):
         self._conn = conn
         self._event_store = SqliteEventStore(conn)
         self._quota = daily_quota_by_capability or {}
-        self._usage: dict[str, int] = {}
+        self._usage: dict[str, int] = self._load_todays_usage()
+
+    def _load_todays_usage(self) -> dict[str, int]:
+        today = _iso_now()[:10]
+        usage: dict[str, int] = {}
+        for event in self._event_store.list_by_type("action.simulated"):
+            if event.occurred_at[:10] == today:
+                capability = event.payload.get("capability")
+                usage[capability] = usage.get(capability, 0) + 1
+        return usage
 
     def evaluate(self, request: ActionRequest) -> PolicyDecision:
         reasons: list[str] = []

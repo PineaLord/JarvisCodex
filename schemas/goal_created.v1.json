@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "jarviscodex/goal_created.v1",
+  "title": "Payload for goal.created events",
+  "type": "object",
+  "required": ["goal_id", "initiative_id", "description"],
+  "properties": {
+    "goal_id": {"type": "string"},
+    "initiative_id": {"type": "string"},
+    "description": {"type": "string"}
+  },
+  "additionalProperties": false
+}

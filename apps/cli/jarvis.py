@@ -21,6 +21,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 from backends.factory import get_backend  # noqa: E402
 from contracts.models import Event  # noqa: E402
 from core.conversation import handle_message  # noqa: E402
+from core.initiative import run_heartbeat  # noqa: E402
 from storage.migrate import MIGRATIONS_DIR, applied_migrations  # noqa: E402
 from storage.sqlite_store import SqliteEventStore, connect  # noqa: E402
 
@@ -46,6 +47,9 @@ def cmd_status(_args: argparse.Namespace) -> int:
         "tasks_open": conn.execute("SELECT COUNT(*) FROM tasks WHERE status = 'open'").fetchone()[0],
         "approvals_pending": conn.execute("SELECT COUNT(*) FROM approvals WHERE status = 'pending'").fetchone()[0],
         "memory_candidates": conn.execute("SELECT COUNT(*) FROM memory_candidates").fetchone()[0],
+        "signals": conn.execute("SELECT COUNT(*) FROM signals").fetchone()[0],
+        "initiatives_proposed": conn.execute("SELECT COUNT(*) FROM initiatives WHERE status = 'proposed'").fetchone()[0],
+        "goals_active": conn.execute("SELECT COUNT(*) FROM goals WHERE status = 'active'").fetchone()[0],
     }
     conn.close()
     print(json.dumps(counts, indent=2))
@@ -101,13 +105,22 @@ def cmd_healthcheck(_args: argparse.Namespace) -> int:
     return 0 if ok else 1
 
 
+def cmd_heartbeat(args: argparse.Namespace) -> int:
+    conn = connect(_db_path())
+    summary = run_heartbeat(conn, daily_quota=args.daily_quota)
+    conn.close()
+    print(summary)
+    return 0
+
+
 def cmd_kill(_args: argparse.Namespace) -> int:
     # Per docs/04-safety-model.md, /kill bypasses the LLM, scheduler and
     # queue and stops only job process trees -- not the control plane.
-    # There is no scheduler or job supervisor yet (Faza C), so there is
-    # nothing to kill: this is an honest no-op, not a placeholder that
-    # pretends to do something it can't.
-    print("No scheduler or job supervisor exists yet (Faza C) -- nothing to kill.")
+    # Heartbeat (Faza C) runs as a short-lived one-shot invocation, not a
+    # persistent job supervisor with process trees to kill, so there is
+    # genuinely nothing to stop yet: an honest no-op, not a placeholder
+    # that pretends to do something it can't.
+    print("No running job process trees to stop yet -- heartbeat runs one-shot (Faza C).")
     return 0
 
 
@@ -134,6 +147,10 @@ def build_parser() -> argparse.ArgumentParser:
 
     p_health = sub.add_parser("healthcheck", help="Verify the database opens and is fully migrated")
     p_health.set_defaults(func=cmd_healthcheck)
+
+    p_heartbeat = sub.add_parser("heartbeat", help="Run one consolidation pass (signals -> initiatives -> goals)")
+    p_heartbeat.add_argument("--daily-quota", type=int, default=3, help="Max auto-accepted memory.consolidate actions per day")
+    p_heartbeat.set_defaults(func=cmd_heartbeat)
 
     p_kill = sub.add_parser("kill", help="Stop running job process trees (no-op until Faza C)")
     p_kill.set_defaults(func=cmd_kill)

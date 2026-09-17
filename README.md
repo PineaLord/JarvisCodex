@@ -64,4 +64,10 @@ python3 apps/cli/jarvis.py chat myself "o idee"
 JARVIS_CODEX_BACKEND=claude python3 apps/cli/jarvis.py chat myself "o idee"
 ```
 
-Următorul pas e Faza C din `docs/06-roadmap.md`: intent → signal → candidate initiative → goal, consolidation loop, heartbeat rar și bugetat.
+🟢 Faza C (inițiativă controlată) — completă. `core/initiative.py`: o afirmație de memorie repetată devine un semnal, un semnal devine o inițiativă la nivel L2 fix, orice inițiativă trece prin *același* policy engine ca orice altă acțiune. Bucla de consolidare (`jarvis heartbeat`) are buget zilnic derivat din ledger (supraviețuiește repornirilor de proces) și cooldown per subiect. Unități systemd pentru rulare periodică în `systemd/jarviscodex-heartbeat.*` — furnizate, dar neactivate. Detalii în `docs/06-roadmap.md`.
+
+```bash
+JARVIS_CODEX_DATA_DIR=./data/live python3 apps/cli/jarvis.py heartbeat
+```
+
+Următorul pas e Faza D din `docs/06-roadmap.md`: plugin registry, JEP (patch-uri sandbox + test + aprobare + rollback), observare Omarchy.

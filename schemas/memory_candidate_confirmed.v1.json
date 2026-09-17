@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "jarviscodex/memory_candidate_confirmed.v1",
+  "title": "Payload for memory.candidate_confirmed events",
+  "type": "object",
+  "required": ["candidate_id"],
+  "properties": {
+    "candidate_id": {"type": "string"}
+  },
+  "additionalProperties": false
+}

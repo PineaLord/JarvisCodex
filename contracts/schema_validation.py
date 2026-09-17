@@ -99,6 +99,11 @@ _PAYLOAD_SCHEMA_BY_TYPE = {
     "action.simulated": "action_simulated.v1.json",
     "session.message": "session_message.v1.json",
     "channel.message_rejected": "channel_message_rejected.v1.json",
+    "signal.detected": "signal_detected.v1.json",
+    "initiative.proposed": "initiative_proposed.v1.json",
+    "initiative.decided": "initiative_decided.v1.json",
+    "goal.created": "goal_created.v1.json",
+    "memory.candidate_confirmed": "memory_candidate_confirmed.v1.json",
 }
 
 

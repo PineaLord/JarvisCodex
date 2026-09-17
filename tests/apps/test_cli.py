@@ -56,7 +56,18 @@ class TestCli(unittest.TestCase):
     def test_kill_is_an_honest_noop(self):
         result = self._run("kill")
         self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertIn("nothing to kill", result.stdout)
+        self.assertIn("to stop yet", result.stdout)
+
+    def test_heartbeat_runs_on_a_fresh_database(self):
+        result = self._run("heartbeat")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("Consolidare", result.stdout)
+
+    def test_status_includes_faza_c_counts(self):
+        counts = json.loads(self._run("status").stdout)
+        self.assertIn("signals", counts)
+        self.assertIn("initiatives_proposed", counts)
+        self.assertIn("goals_active", counts)
 
 
 if __name__ == "__main__":

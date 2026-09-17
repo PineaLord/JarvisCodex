@@ -1,0 +1,10 @@
+[Unit]
+Description=Run JarvisCodex heartbeat rarely, per docs/01-architecture.md
+
+[Timer]
+# "Rar" per docs/06-roadmap.md Faza C.3 -- every 6 hours, not continuous.
+OnCalendar=*-*-* 0/6:00:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target

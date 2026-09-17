@@ -1,0 +1,9 @@
+[Unit]
+Description=JarvisCodex heartbeat (one consolidation pass)
+
+[Service]
+Type=oneshot
+# Adjust this path if your clone of JarvisCodex lives somewhere else.
+WorkingDirectory=%h/Work/JarvisCodex
+EnvironmentFile=%h/Work/JarvisCodex/.env
+ExecStart=/usr/bin/python3 %h/Work/JarvisCodex/apps/cli/jarvis.py heartbeat

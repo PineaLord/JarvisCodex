@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "jarviscodex/initiative_proposed.v1",
+  "title": "Payload for initiative.proposed events",
+  "type": "object",
+  "required": ["initiative_id", "signal_id", "level", "description", "target"],
+  "properties": {
+    "initiative_id": {"type": "string"},
+    "signal_id": {"type": "string"},
+    "level": {"type": "string", "enum": ["L0", "L1", "L2", "L3", "L4", "L5"]},
+    "description": {"type": "string"},
+    "target": {"type": "object"}
+  },
+  "additionalProperties": false
+}

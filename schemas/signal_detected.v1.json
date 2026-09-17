@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "jarviscodex/signal_detected.v1",
+  "title": "Payload for signal.detected events",
+  "type": "object",
+  "required": ["signal_id", "kind", "subject", "description", "source_event_ids"],
+  "properties": {
+    "signal_id": {"type": "string"},
+    "kind": {"type": "string"},
+    "subject": {"type": "string"},
+    "description": {"type": "string"},
+    "source_event_ids": {"type": "array", "items": {"type": "string"}}
+  },
+  "additionalProperties": false
+}

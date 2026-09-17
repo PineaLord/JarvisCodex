@@ -46,4 +46,8 @@ CAPABILITIES: dict[str, CapabilitySpec] = {
         min_level="L5",
         required_target_fields=("system",),
     ),
+    "memory.consolidate": CapabilitySpec(
+        min_level="L2",
+        required_target_fields=("candidate_id",),
+    ),
 }

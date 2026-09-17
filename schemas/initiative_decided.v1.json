@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "jarviscodex/initiative_decided.v1",
+  "title": "Payload for initiative.decided events",
+  "type": "object",
+  "required": ["initiative_id", "decision"],
+  "properties": {
+    "initiative_id": {"type": "string"},
+    "decision": {"type": "string", "enum": ["accepted", "dismissed"]},
+    "reason": {"type": "string"}
+  },
+  "additionalProperties": false
+}

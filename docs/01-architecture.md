@@ -41,6 +41,8 @@ Channels (Telegram, CLI, UI)
 
 Există trei bucle, dar se introduc numai după ce nucleul este stabil: event loop, consolidation loop și heartbeat. Heartbeat-ul produce doar taskuri L0–L2, cu buget pe zi, cooldown per subiect și notificări agregate.
 
+Implementare: `core/initiative.py` — vezi „Implementare: Faza C” în `docs/06-roadmap.md`. Consolidation loop și heartbeat rutează orice inițiativă prin `policy/engine.py`, exact ca orice altă acțiune; nu există o cale de auto-autorizare pentru ideile proprii ale sistemului.
+
 ## Implementare: canal CLI + ReasoningBackend
 
 `contracts/reasoning.py` fixează contractul: un `ReasoningRequest` (text, context recuperat, id-ul evenimentului sursă) intră, un `ReasoningResponse` (text + propuneri de memorie cu surse) iese. `backends/echo.py` e o implementare locală, fără cost și fără rețea, care dovedește restul fluxului înainte de a conecta un provider real (Claude/Codex/local) — schimbarea backend-ului nu atinge `core/conversation.py` sau CLI-ul.
