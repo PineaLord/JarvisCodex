@@ -47,4 +47,11 @@ python3 -m unittest discover -t . -s tests -v
 
 Backup/restore manual: vezi `docs/05-recovery.md` și `scripts/backup_now.py` / `scripts/restore_backup.py`.
 
-Următorul pas e Faza B din `docs/06-roadmap.md`: CLI local, `ReasoningBackend` cu un singur provider, session events. Fără LLM integrat încă.
+🟡 Faza B (conversație și memorie) — în lucru. CLI local (`apps/cli/jarvis.py`: `chat`, `status`, `approvals list/decide`, `healthcheck`, `kill`), contractul `ReasoningBackend` (`contracts/reasoning.py`) cu un backend local de test fără cost (`backends/echo.py`), și fluxul complet din Milestone 0.1 (`core/conversation.py`): mesaj → înregistrare durabilă → context recuperat → răspuns → memorie propusă cu surse verificabile, recuperabilă în conversații ulterioare.
+
+```bash
+JARVIS_CODEX_DATA_DIR=./data/live python3 apps/cli/jarvis.py chat myself "o idee de reținut"
+JARVIS_CODEX_DATA_DIR=./data/live python3 apps/cli/jarvis.py status
+```
+
+Rămas din Faza B: un `ReasoningBackend` real cu un singur provider (Claude, prin Anthropic API — vezi `docs/01-architecture.md`) și adapterul Telegram autentificat.

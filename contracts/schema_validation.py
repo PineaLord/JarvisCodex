@@ -97,6 +97,7 @@ _PAYLOAD_SCHEMA_BY_TYPE = {
     "approval.decided": "approval_decided.v1.json",
     "memory.candidate_proposed": "memory_candidate_proposed.v1.json",
     "action.simulated": "action_simulated.v1.json",
+    "session.message": "session_message.v1.json",
 }
 
 

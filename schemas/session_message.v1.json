@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "jarviscodex/session_message.v1",
+  "title": "Payload for session.message events",
+  "type": "object",
+  "required": ["session_id", "role", "text"],
+  "properties": {
+    "session_id": {"type": "string"},
+    "role": {"type": "string", "enum": ["user", "assistant"]},
+    "text": {"type": "string"}
+  },
+  "additionalProperties": false
+}
