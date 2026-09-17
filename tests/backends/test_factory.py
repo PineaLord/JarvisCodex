@@ -21,6 +21,12 @@ class TestBackendFactory(unittest.TestCase):
             from backends.claude import ClaudeBackend
             self.assertIsInstance(get_backend(), ClaudeBackend)
 
+    def test_codex_is_selected_and_constructed(self):
+        with unittest.mock.patch.dict("os.environ", {"JARVIS_CODEX_BACKEND": "codex"}):
+            with unittest.mock.patch("backends.codex_cli.shutil.which", return_value="/usr/bin/codex"):
+                from backends.codex_cli import CodexCliBackend
+                self.assertIsInstance(get_backend(), CodexCliBackend)
+
     def test_unknown_backend_raises(self):
         with unittest.mock.patch.dict("os.environ", {"JARVIS_CODEX_BACKEND": "nope"}):
             with self.assertRaises(ValueError):

@@ -24,4 +24,8 @@ def get_backend() -> ReasoningBackend:
         from backends.claude import ClaudeBackend
         return ClaudeBackend()
 
-    raise ValueError(f"Unknown JARVIS_CODEX_BACKEND: {name!r} (expected 'echo' or 'claude')")
+    if name == "codex":
+        from backends.codex_cli import CodexCliBackend
+        return CodexCliBackend()
+
+    raise ValueError(f"Unknown JARVIS_CODEX_BACKEND: {name!r} (expected 'echo', 'claude', or 'codex')")

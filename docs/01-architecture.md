@@ -81,3 +81,11 @@ Backend-ul e ales din `JARVIS_CODEX_BACKEND` (`backends/factory.py`), implicit `
 Propunerea de memorie nu se face prin parsare de text liber, ci printr-un tool call explicit (`propose_memory`, cu `statement` + `confidence`) — modelul decide activ că ceva merită reținut, nu ghicim dintr-un răspuns. `source_event_ids` rămâne gol în propunere; `core/conversation.py` completează automat id-ul evenimentului sursă, la fel ca la `EchoBackend`.
 
 Activare: `JARVIS_CODEX_BACKEND=claude` + `ANTHROPIC_API_KEY=...` în `.env`. Fără asta, sistemul rămâne pe `echo` — nicio schimbare de cod nu poate produce accidental un apel plătit.
+
+## Implementare: ReasoningBackend prin `codex` CLI (fără cheie API separată)
+
+`backends/codex_cli.py` (`CodexCliBackend`) rutează prin `codex exec` local, refolosind un abonament ChatGPT/Codex deja autentificat (`~/.codex/auth.json`) în loc de o cheie API separată plătită per-token. Rulează izolat: director scratch gol proaspăt creat la fiecare apel (`--skip-git-repo-check`, `--ephemeral`), `--sandbox read-only` (nu poate scrie sau executa nimic), `stdin=DEVNULL` (nu se blochează niciodată așteptând input). Nu ajunge niciun secret prin acest modul — autentificarea e gestionată integral de `codex` însuși.
+
+Fără tool-use structurat disponibil peste această interfață, propunerea de memorie se face printr-un marker pe ultimul rând al răspunsului (`MEMORY: <afirmație> | confidence=<0-1>`), extras și eliminat din textul vizibil înainte de a fi întors — mai fragil decât tool call-ul din `backends/claude.py`, dar singura opțiune practică pentru un CLI fără API structurat.
+
+Activare: `JARVIS_CODEX_BACKEND=codex` în `.env` — necesită `codex` autentificat și instalat pe `PATH` (`codex doctor` verifică starea), nimic altceva.
