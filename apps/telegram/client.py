@@ -33,7 +33,11 @@ class TelegramClient:
         try:
             with urllib.request.urlopen(request, timeout=self._timeout) as response:
                 body = json.loads(response.read().decode("utf-8"))
-        except urllib.error.URLError as e:
+        except (urllib.error.URLError, OSError) as e:
+            # OSError also catches a plain socket/SSL read timeout, which
+            # is not a urllib.error.URLError and would otherwise propagate
+            # uncaught out of get_updates() and kill the whole polling
+            # loop -- found live when a long-poll legitimately ran long.
             raise TelegramApiError(f"Telegram API call to {method} failed: {e}") from e
 
         if not body.get("ok"):
