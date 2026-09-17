@@ -54,4 +54,6 @@ JARVIS_CODEX_DATA_DIR=./data/live python3 apps/cli/jarvis.py chat myself "o idee
 JARVIS_CODEX_DATA_DIR=./data/live python3 apps/cli/jarvis.py status
 ```
 
-Rămas din Faza B: un `ReasoningBackend` real cu un singur provider (Claude, prin Anthropic API — vezi `docs/01-architecture.md`) și adapterul Telegram autentificat.
+Adapter Telegram autentificat (`apps/telegram/bot.py`): long-polling peste Telegram Bot API (doar stdlib), mesaje respinse de la utilizatori neautorizați devin evenimente `channel.message_rejected` auditabile, sesiune izolată per chat. Configurare și unitate systemd în `docs/01-architecture.md`.
+
+Rămas din Faza B: un `ReasoningBackend` real cu un singur provider (Claude, prin Anthropic API).

@@ -47,4 +47,27 @@ Există trei bucle, dar se introduc numai după ce nucleul este stabil: event lo
 
 `core/conversation.py` (`handle_message`) implementează Milestone 0.1: înregistrează intrarea ca eveniment `session.message`, adună context (ultimele mesaje din aceeași sesiune + ultimele candidate de memorie, indiferent de sesiune — memoria e recuperabilă cross-session, mesajele brute nu), cheamă backend-ul, înregistrează răspunsul și orice memorie propusă cu `source_event_ids` verificabile. E agnostic de canal: `apps/cli/jarvis.py` e primul apelant; un adapter Telegram viitor trebuie să cheme aceeași funcție, nu să-și reimplementeze fluxul.
 
-`apps/cli/jarvis.py` expune: `chat`, `status`, `approvals list`/`approvals decide` (peste tabela de aprobări deja construită în Faza A), `healthcheck` (verifică migrațiile și disponibilitatea `age`), și `kill` — un no-op onest, pentru că nu există încă scheduler/job supervisor de oprit (vine în Faza C). Adapterul Telegram din roadmap rămâne neconstruit.
+`apps/cli/jarvis.py` expune: `chat`, `status`, `approvals list`/`approvals decide` (peste tabela de aprobări deja construită în Faza A), `healthcheck` (verifică migrațiile și disponibilitatea `age`), și `kill` — un no-op onest, pentru că nu există încă scheduler/job supervisor de oprit (vine în Faza C).
+
+## Implementare: canal Telegram
+
+`apps/telegram/client.py` e un client minimal peste Telegram Bot API, doar `urllib` din stdlib, cu long-polling (`getUpdates`) — nu webhook, ca să nu fie nevoie de port public sau certificat TLS pe o mașină personală. Token-ul nu ajunge niciodată în mesajele de eroare, în ledger sau în contextul modelului; e folosit doar de apelurile HTTP din acest client.
+
+`apps/telegram/bot.py` (`process_updates`) rutează un mesaj către `core.conversation.handle_message` doar dacă `from.id` e în `TELEGRAM_ALLOWED_USERS`. Orice alt expeditor e respins și respingerea devine un eveniment `channel.message_rejected` în ledger — o încercare de contact neautorizată e auditabilă, nu doar ignorată tăcut. Sesiunea e `telegram:<chat_id>`, deci contextul se comportă identic cu CLI-ul (izolat per conversație, cu memoria recuperabilă cross-sesiune).
+
+**Configurare (o singură dată):**
+
+1. Creează un bot cu [@BotFather](https://t.me/BotFather) pe Telegram (`/newbot`) și copiază token-ul primit.
+2. Află-ți id-ul numeric de utilizator Telegram (de ex. trimite un mesaj către [@userinfobot](https://t.me/userinfobot)).
+3. Pune în `.env` (niciodată în Git): `TELEGRAM_BOT_TOKEN=<token>` și `TELEGRAM_ALLOWED_USERS=<id-ul tău>` (listă separată prin virgulă dacă sunt mai mulți).
+4. Testează manual: `set -a; source .env; set +a; JARVIS_CODEX_DATA_DIR=./data/live python3 apps/telegram/bot.py`, apoi scrie-i botului pe Telegram.
+5. Pentru rulare permanentă, vezi `systemd/jarviscodex-telegram.service` — ajustează căile dacă clona ta nu e în `~/Work/JarvisCodex`, apoi:
+   ```bash
+   mkdir -p ~/.config/systemd/user
+   cp systemd/jarviscodex-telegram.service ~/.config/systemd/user/
+   systemctl --user daemon-reload
+   systemctl --user enable --now jarviscodex-telegram.service
+   journalctl --user -u jarviscodex-telegram.service -f
+   ```
+
+Backend-ul folosit e tot `EchoBackend` deocamdată — schimbarea la un provider real se face într-un singur loc (`apps/telegram/bot.py:main`), nu în logica de autentificare/rutare.

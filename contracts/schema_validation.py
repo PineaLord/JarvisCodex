@@ -98,6 +98,7 @@ _PAYLOAD_SCHEMA_BY_TYPE = {
     "memory.candidate_proposed": "memory_candidate_proposed.v1.json",
     "action.simulated": "action_simulated.v1.json",
     "session.message": "session_message.v1.json",
+    "channel.message_rejected": "channel_message_rejected.v1.json",
 }
 
 
