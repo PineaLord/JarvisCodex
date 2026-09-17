@@ -1,0 +1,19 @@
+[Unit]
+Description=JarvisCodex Telegram -> claude bridge (UNRESTRICTED, no policy engine)
+After=network-online.target
+Wants=network-online.target
+# Do not enable alongside jarviscodex-telegram.service on the same bot token --
+# two independent long-pollers on one token will race.
+Conflicts=jarviscodex-telegram.service
+
+[Service]
+Type=simple
+WorkingDirectory=%h/Work/JarvisCodex
+EnvironmentFile=%h/Work/JarvisCodex/.env
+Environment=JARVIS_CLAUDE_BRIDGE_WORKDIR=%h
+ExecStart=/usr/bin/python3 %h/Work/JarvisCodex/apps/telegram/claude_bridge.py
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target

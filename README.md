@@ -47,22 +47,18 @@ python3 -m unittest discover -t . -s tests -v
 
 Backup/restore manual: vezi `docs/05-recovery.md` și `scripts/backup_now.py` / `scripts/restore_backup.py`.
 
-🟡 Faza B (conversație și memorie) — în lucru. CLI local (`apps/cli/jarvis.py`: `chat`, `status`, `approvals list/decide`, `healthcheck`, `kill`), contractul `ReasoningBackend` (`contracts/reasoning.py`) cu un backend local de test fără cost (`backends/echo.py`), și fluxul complet din Milestone 0.1 (`core/conversation.py`): mesaj → înregistrare durabilă → context recuperat → răspuns → memorie propusă cu surse verificabile, recuperabilă în conversații ulterioare.
-
-```bash
-JARVIS_CODEX_DATA_DIR=./data/live python3 apps/cli/jarvis.py chat myself "o idee de reținut"
-JARVIS_CODEX_DATA_DIR=./data/live python3 apps/cli/jarvis.py status
-```
-
-🟢 Faza B (conversație și memorie) — completă. Adapter Telegram autentificat (`apps/telegram/bot.py`, testat live), `ReasoningBackend` real cu Claude prin Anthropic API (`backends/claude.py`, propuneri de memorie printr-un tool call explicit, nu parsare de text), ales prin `JARVIS_CODEX_BACKEND` (`echo` implicit, `claude` la cerere — vezi `docs/01-architecture.md`).
+🟢 Faza B (conversație și memorie) — completă. CLI local (`apps/cli/jarvis.py`: `chat`, `status`, `approvals list/decide`, `healthcheck`, `kill`, `heartbeat`), adapter Telegram autentificat (`apps/telegram/bot.py`, testat live), contractul `ReasoningBackend` (`contracts/reasoning.py`) cu trei implementări — `echo` (local, gratuit, implicit), `claude` (Anthropic API, `ANTHROPIC_API_KEY`), `codex` (CLI local, reutilizează abonamentul ChatGPT/Codex) — alese prin `JARVIS_CODEX_BACKEND` (vezi `docs/01-architecture.md`). Fluxul complet din Milestone 0.1 (`core/conversation.py`): mesaj → înregistrare durabilă → context recuperat → răspuns → memorie propusă cu surse verificabile, recuperabilă în conversații ulterioare.
 
 ```bash
 # implicit: gratuit, local, fără rețea
 python3 apps/cli/jarvis.py chat myself "o idee"
 
-# cu Claude real, după ce pui ANTHROPIC_API_KEY în .env
+# cu Claude real (ANTHROPIC_API_KEY în .env) sau Codex CLI (codex autentificat)
 JARVIS_CODEX_BACKEND=claude python3 apps/cli/jarvis.py chat myself "o idee"
+JARVIS_CODEX_BACKEND=codex python3 apps/cli/jarvis.py chat myself "o idee"
 ```
+
+⚠️ În afara nucleului: `apps/telegram/claude_bridge.py` leagă Telegram direct de o sesiune `claude` reală, cu acces complet la fișiere/comenzi, **fără să treacă prin policy engine** — vezi avertismentul din `docs/01-architecture.md` înainte să-l pornești.
 
 🟢 Faza C (inițiativă controlată) — completă. `core/initiative.py`: o afirmație de memorie repetată devine un semnal, un semnal devine o inițiativă la nivel L2 fix, orice inițiativă trece prin *același* policy engine ca orice altă acțiune. Bucla de consolidare (`jarvis heartbeat`) are buget zilnic derivat din ledger (supraviețuiește repornirilor de proces) și cooldown per subiect. Unități systemd pentru rulare periodică în `systemd/jarviscodex-heartbeat.*` — furnizate, dar neactivate. Detalii în `docs/06-roadmap.md`.
 

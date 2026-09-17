@@ -89,3 +89,15 @@ Activare: `JARVIS_CODEX_BACKEND=claude` + `ANTHROPIC_API_KEY=...` în `.env`. F�
 Fără tool-use structurat disponibil peste această interfață, propunerea de memorie se face printr-un marker pe ultimul rând al răspunsului (`MEMORY: <afirmație> | confidence=<0-1>`), extras și eliminat din textul vizibil înainte de a fi întors — mai fragil decât tool call-ul din `backends/claude.py`, dar singura opțiune practică pentru un CLI fără API structurat.
 
 Activare: `JARVIS_CODEX_BACKEND=codex` în `.env` — necesită `codex` autentificat și instalat pe `PATH` (`codex doctor` verifică starea), nimic altceva.
+
+## ⚠️ Nu e parte din nucleu: puntea Telegram → `claude` (acces complet, fără politici)
+
+`apps/telegram/claude_bridge.py` **nu** e un `ReasoningBackend` și **nu** trece prin `policy/engine.py`. E un canal separat, deliberat, care leagă Telegram direct de o sesiune reală `claude` (Claude Code) locală, cu `--permission-mode bypassPermissions` — acces complet la fișiere și comenzi, exact ca și cum ai rula `claude` tu însuți la tastatură. Există pentru că singurul utilizator autorizat (`TELEGRAM_ALLOWED_USERS`) e chiar persoana care ar rula altfel `claude` local — nu e o capabilitate disponibilă vreunui plugin sau buclei de autonomie din Faza C.
+
+Continuitatea conversației: fiecare chat Telegram primește un `session_id` determinist (`uuid.uuid5` din `chat_id`, fără fișier de evidență separat). Primul mesaj pornește sesiunea cu `--session-id <id>`; mesajele următoare o continuă cu `--resume <id>` — dacă sesiunea nu există încă, `--resume` eșuează cu un mesaj clar (`No conversation found with session ID: ...`) și codul reîncearcă automat cu `--session-id`. Mecanica a fost verificată manual (nu de mine direct — clasificatorul de siguranță al Claude Code a blocat rularea `bypassPermissions` ca „Create Unsafe Agents"; utilizatorul a confirmat manual comportamentul `--resume`/`--session-id` din propriul terminal).
+
+Fiecare mesaj gestionat cu succes devine un eveniment `bridge.claude_message` (cost, durată) în ledger, doar pentru vizibilitate — nu afectează politica sau proiecțiile de task/approval/goal.
+
+**Nu rula simultan cu `apps/telegram/bot.py` pe același token de bot** — doi long-pollers independenți pe același token se calcă unul pe altul. Alege un mod sau altul.
+
+Activare: `TELEGRAM_BOT_TOKEN` + `TELEGRAM_ALLOWED_USERS` (aceleași ca la botul normal) + opțional `JARVIS_CLAUDE_BRIDGE_WORKDIR` (implicit `$HOME`) în `.env`, apoi `python3 apps/telegram/claude_bridge.py`. Unitate systemd în `systemd/jarviscodex-claude-bridge.service` — furnizată, neactivată.
