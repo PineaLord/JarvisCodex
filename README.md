@@ -37,12 +37,14 @@ Spui o idee. Sistemul o înregistrează durabil, găsește contextul relevant, �
 
 ## Status
 
-🟢 Faza A (nucleu durabil) — în lucru. Există: scheme versionate pentru event/task/approval/memory candidate, un event ledger SQLite append-only, proiecții reconstruibile din evenimente (`storage/projections.py`), export Markdown/JSON, și un test de restore automat (`tests/recovery/test_restore.py`) care verifică numărul de evenimente, hash-ul jurnalului și memoriile cu provenance după o restaurare într-un mediu curat.
+🟢 Faza A (nucleu durabil) — în lucru. Există: scheme versionate pentru event/task/approval/memory candidate, un event ledger SQLite append-only, proiecții reconstruibile din evenimente (`storage/projections.py`), export Markdown/JSON, backup criptat cu `age` + test de restore automat (`tests/recovery/`) care verifică decriptarea, checksum-urile, numărul de evenimente și memoriile cu provenance după o restaurare într-un mediu curat.
 
-Rulare teste (fără dependențe externe, doar stdlib):
+Rulare teste (stdlib + binarul `age` instalat, fără alte dependențe):
 
 ```bash
 python3 -m unittest discover -t . -s tests -v
 ```
 
-Rămas din Faza A: backup criptat (azi copierea e necriptată, vezi `docs/05-recovery.md`) și policy engine + executor dry-run. Fără LLM integrat încă — intenționat, per `docs/06-roadmap.md`.
+Backup/restore manual: vezi `docs/05-recovery.md` și `scripts/backup_now.py` / `scripts/restore_backup.py`.
+
+Rămas din Faza A: policy engine testat adversarial + executor dry-run. Fără LLM integrat încă — intenționat, per `docs/06-roadmap.md`.
