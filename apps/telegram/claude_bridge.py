@@ -54,17 +54,30 @@ def session_id_for_chat(chat_id) -> str:
     return str(uuid.uuid5(SESSION_NAMESPACE, str(chat_id)))
 
 
+def _subprocess_env() -> dict:
+    """The `claude` subprocess must use the caller's claude.ai/subscription
+    login, not an ANTHROPIC_API_KEY the JarvisCodex .env sets for
+    backends/claude.py's own use -- an API key present in the environment
+    takes precedence over that login and silently routes onto the
+    metered, separately-billed path this bridge exists to avoid."""
+
+    env = dict(os.environ)
+    env.pop("ANTHROPIC_API_KEY", None)
+    return env
+
+
 def run_claude(session_id: str, prompt: str, workdir: str, timeout: int = DEFAULT_TIMEOUT_SECONDS) -> dict:
     """Resume the chat's claude session; if it doesn't exist yet, start
     it fresh under that exact session id. Returns the parsed --output-format
     json result (has "result" for the reply text, "total_cost_usd", etc.)."""
 
+    env = _subprocess_env()
     resume_cmd = [
         CLAUDE_BINARY, "-p", "--output-format", "json",
         "--resume", session_id, "--permission-mode", "bypassPermissions",
         prompt,
     ]
-    result = subprocess.run(resume_cmd, capture_output=True, text=True, cwd=workdir, timeout=timeout)
+    result = subprocess.run(resume_cmd, capture_output=True, text=True, cwd=workdir, timeout=timeout, env=env)
 
     if result.returncode != 0 and NO_SESSION_MARKER in (result.stdout + result.stderr):
         start_cmd = [
@@ -72,7 +85,7 @@ def run_claude(session_id: str, prompt: str, workdir: str, timeout: int = DEFAUL
             "--session-id", session_id, "--permission-mode", "bypassPermissions",
             prompt,
         ]
-        result = subprocess.run(start_cmd, capture_output=True, text=True, cwd=workdir, timeout=timeout)
+        result = subprocess.run(start_cmd, capture_output=True, text=True, cwd=workdir, timeout=timeout, env=env)
 
     if result.returncode != 0:
         raise RuntimeError(f"claude exited {result.returncode}: {result.stderr.strip()[-2000:]}")

@@ -45,6 +45,20 @@ class TestSessionIdForChat(unittest.TestCase):
 
 
 class TestRunClaude(unittest.TestCase):
+    def test_anthropic_api_key_is_stripped_from_subprocess_env(self):
+        # A JarvisCodex .env with ANTHROPIC_API_KEY set (for backends/claude.py)
+        # must not leak into the `claude` subprocess -- an API key present
+        # takes precedence over the claude.ai subscription login and silently
+        # routes onto the metered, separately-billed path this bridge exists
+        # to avoid. Reproduces a bug hit live: see conversation record.
+        completed = subprocess.CompletedProcess(
+            [], returncode=0, stdout=json.dumps({"result": "ok", "total_cost_usd": 0, "duration_ms": 1}), stderr="",
+        )
+        with unittest.mock.patch.dict("os.environ", {"ANTHROPIC_API_KEY": "sk-should-not-leak"}):
+            with unittest.mock.patch("apps.telegram.claude_bridge.subprocess.run", return_value=completed) as run:
+                run_claude("sess-1", "salut", "/tmp")
+        self.assertNotIn("ANTHROPIC_API_KEY", run.call_args.kwargs["env"])
+
     def test_resumes_when_session_exists(self):
         completed = subprocess.CompletedProcess(
             [], returncode=0, stdout=json.dumps({"result": "42", "total_cost_usd": 0.01, "duration_ms": 500}), stderr="",
