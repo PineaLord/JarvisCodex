@@ -21,7 +21,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 
 from apps.telegram.client import TelegramApiError, TelegramClient  # noqa: E402
-from backends.echo import EchoBackend  # noqa: E402
+from backends.factory import get_backend  # noqa: E402
 from contracts.models import Event  # noqa: E402
 from contracts.reasoning import ReasoningBackend  # noqa: E402
 from core.conversation import handle_message  # noqa: E402
@@ -111,7 +111,7 @@ def main() -> int:
     client = TelegramClient(token)
 
     print(f"JarvisCodex Telegram adapter running, {len(allowed_users)} allowed user(s).")
-    run_forever(conn, EchoBackend(), client, allowed_users)
+    run_forever(conn, get_backend(), client, allowed_users)
     return 0
 
 

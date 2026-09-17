@@ -54,6 +54,14 @@ JARVIS_CODEX_DATA_DIR=./data/live python3 apps/cli/jarvis.py chat myself "o idee
 JARVIS_CODEX_DATA_DIR=./data/live python3 apps/cli/jarvis.py status
 ```
 
-Adapter Telegram autentificat (`apps/telegram/bot.py`): long-polling peste Telegram Bot API (doar stdlib), mesaje respinse de la utilizatori neautorizați devin evenimente `channel.message_rejected` auditabile, sesiune izolată per chat. Configurare și unitate systemd în `docs/01-architecture.md`.
+🟢 Faza B (conversație și memorie) — completă. Adapter Telegram autentificat (`apps/telegram/bot.py`, testat live), `ReasoningBackend` real cu Claude prin Anthropic API (`backends/claude.py`, propuneri de memorie printr-un tool call explicit, nu parsare de text), ales prin `JARVIS_CODEX_BACKEND` (`echo` implicit, `claude` la cerere — vezi `docs/01-architecture.md`).
 
-Rămas din Faza B: un `ReasoningBackend` real cu un singur provider (Claude, prin Anthropic API).
+```bash
+# implicit: gratuit, local, fără rețea
+python3 apps/cli/jarvis.py chat myself "o idee"
+
+# cu Claude real, după ce pui ANTHROPIC_API_KEY în .env
+JARVIS_CODEX_BACKEND=claude python3 apps/cli/jarvis.py chat myself "o idee"
+```
+
+Următorul pas e Faza C din `docs/06-roadmap.md`: intent → signal → candidate initiative → goal, consolidation loop, heartbeat rar și bugetat.

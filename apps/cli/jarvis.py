@@ -18,7 +18,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 
-from backends.echo import EchoBackend  # noqa: E402
+from backends.factory import get_backend  # noqa: E402
 from contracts.models import Event  # noqa: E402
 from core.conversation import handle_message  # noqa: E402
 from storage.migrate import MIGRATIONS_DIR, applied_migrations  # noqa: E402
@@ -33,7 +33,7 @@ def _db_path() -> Path:
 
 def cmd_chat(args: argparse.Namespace) -> int:
     conn = connect(_db_path())
-    reply = handle_message(conn, EchoBackend(), args.session, args.text)
+    reply = handle_message(conn, get_backend(), args.session, args.text)
     conn.close()
     print(reply)
     return 0

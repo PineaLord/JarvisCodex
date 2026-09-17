@@ -70,4 +70,12 @@ Există trei bucle, dar se introduc numai după ce nucleul este stabil: event lo
    journalctl --user -u jarviscodex-telegram.service -f
    ```
 
-Backend-ul folosit e tot `EchoBackend` deocamdată — schimbarea la un provider real se face într-un singur loc (`apps/telegram/bot.py:main`), nu în logica de autentificare/rutare.
+Backend-ul e ales din `JARVIS_CODEX_BACKEND` (`backends/factory.py`), implicit `echo` — schimbarea la un provider real e o variabilă de mediu, nu o modificare de cod în logica de autentificare/rutare.
+
+## Implementare: ReasoningBackend real (Claude)
+
+`backends/claude.py` (`ClaudeBackend`) cheamă Anthropic Messages API direct cu `urllib` din stdlib. Cheia (`ANTHROPIC_API_KEY`) e folosită doar în headerul cererii — nu ajunge în ledger, în context sau într-un mesaj de eroare. Modelul e configurabil prin `ANTHROPIC_MODEL` (implicit `claude-sonnet-5`).
+
+Propunerea de memorie nu se face prin parsare de text liber, ci printr-un tool call explicit (`propose_memory`, cu `statement` + `confidence`) — modelul decide activ că ceva merită reținut, nu ghicim dintr-un răspuns. `source_event_ids` rămâne gol în propunere; `core/conversation.py` completează automat id-ul evenimentului sursă, la fel ca la `EchoBackend`.
+
+Activare: `JARVIS_CODEX_BACKEND=claude` + `ANTHROPIC_API_KEY=...` în `.env`. Fără asta, sistemul rămâne pe `echo` — nicio schimbare de cod nu poate produce accidental un apel plătit.
