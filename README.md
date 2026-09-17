@@ -37,7 +37,7 @@ Spui o idee. Sistemul o înregistrează durabil, găsește contextul relevant, �
 
 ## Status
 
-🟢 Faza A (nucleu durabil) — în lucru. Există: scheme versionate pentru event/task/approval/memory candidate, un event ledger SQLite append-only, proiecții reconstruibile din evenimente (`storage/projections.py`), export Markdown/JSON, backup criptat cu `age` + test de restore automat (`tests/recovery/`) care verifică decriptarea, checksum-urile, numărul de evenimente și memoriile cu provenance după o restaurare într-un mediu curat.
+🟢 Faza A (nucleu durabil) — completă. Există: scheme versionate pentru event/task/approval/memory candidate, un event ledger SQLite append-only, proiecții reconstruibile din evenimente (`storage/projections.py`), export Markdown/JSON, backup criptat cu `age` + test de restore automat (`tests/recovery/`), și un policy engine (`policy/engine.py`) cu executor dry-run (`policy/executor.py`) testat adversarial (`tests/policy/test_policy_adversarial.py`) — capabilități tipizate cu nivel de risc fix, aprobări L3+ auditabile în ledger, fără efecte reale înainte de Faza C.
 
 Rulare teste (stdlib + binarul `age` instalat, fără alte dependențe):
 
@@ -47,4 +47,4 @@ python3 -m unittest discover -t . -s tests -v
 
 Backup/restore manual: vezi `docs/05-recovery.md` și `scripts/backup_now.py` / `scripts/restore_backup.py`.
 
-Rămas din Faza A: policy engine testat adversarial + executor dry-run. Fără LLM integrat încă — intenționat, per `docs/06-roadmap.md`.
+Următorul pas e Faza B din `docs/06-roadmap.md`: CLI local, `ReasoningBackend` cu un singur provider, session events. Fără LLM integrat încă.

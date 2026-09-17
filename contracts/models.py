@@ -70,6 +70,7 @@ class ApprovalState:
     description: str
     status: str
     requested_from_event: str
+    expires_at: str | None = None
     decided_from_event: str | None = None
 
 

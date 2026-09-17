@@ -27,7 +27,10 @@ class TestProjections(unittest.TestCase):
         self.store.append(Event(
             id="evt-approval-req", schema_version=1, occurred_at="2026-09-16T12:01:00Z",
             type="approval.requested", source="test",
-            payload={"approval_id": "appr-1", "level": "L3", "description": "Install a package"},
+            payload={
+                "approval_id": "appr-1", "level": "L3", "description": "Install a package",
+                "expires_at": "2026-09-16T13:01:00Z",
+            },
         ))
         self.store.append(Event(
             id="evt-approval-dec", schema_version=1, occurred_at="2026-09-16T12:02:00Z",

@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "jarviscodex/action_simulated.v1",
+  "title": "Payload for action.simulated events",
+  "type": "object",
+  "required": ["capability", "target", "preview"],
+  "properties": {
+    "capability": {"type": "string"},
+    "target": {"type": "object"},
+    "preview": {"type": "string"}
+  },
+  "additionalProperties": false
+}

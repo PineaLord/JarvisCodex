@@ -43,11 +43,11 @@ def _on_approval_requested(conn: sqlite3.Connection, event: Event) -> None:
     p = event.payload
     conn.execute(
         """
-        INSERT INTO approvals (id, level, description, status, requested_from_event)
-        VALUES (?, ?, ?, 'pending', ?)
+        INSERT INTO approvals (id, level, description, status, requested_from_event, expires_at)
+        VALUES (?, ?, ?, 'pending', ?, ?)
         ON CONFLICT(id) DO NOTHING
         """,
-        (p["approval_id"], p["level"], p["description"], event.id),
+        (p["approval_id"], p["level"], p["description"], event.id, p.get("expires_at")),
     )
 
 
